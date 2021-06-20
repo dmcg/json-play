@@ -21,10 +21,10 @@ class Tests {
         return converter(domain)
     }
 
-    private fun <T1, T2> createConverter(
-        constructor: (String, Int) -> T2,
-        p1: (T1) -> String,
-        p2: (T1) -> Int
+    private fun <T1, T2, P1, P2> createConverter(
+        constructor: (P1, P2) -> T2,
+        p1: (T1) -> P1,
+        p2: (T1) -> P2
     ): (T1) -> T2 = {
         constructor(p1(it), p2(it))
     }
