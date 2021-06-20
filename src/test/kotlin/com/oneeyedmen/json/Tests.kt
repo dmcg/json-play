@@ -17,10 +17,16 @@ class Tests {
         val constructor: KFunction2<String, Int, JDomain> = ::JDomain
         val p1: KProperty1<Domain, String> = Domain::name
         val p2: KProperty1<Domain, Int> = Domain::count
-        val converter: (Domain) -> JDomain = {
-            constructor(p1(it), p2(it))
-        }
+        val converter: (Domain) -> JDomain = createConverter(constructor, p1, p2)
         return converter(domain)
+    }
+
+    private fun createConverter(
+        constructor: KFunction2<String, Int, JDomain>,
+        p1: KProperty1<Domain, String>,
+        p2: KProperty1<Domain, Int>
+    ): (Domain) -> JDomain = {
+        constructor(p1(it), p2(it))
     }
 }
 
