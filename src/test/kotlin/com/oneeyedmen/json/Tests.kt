@@ -21,11 +21,11 @@ class Tests {
         return converter(domain)
     }
 
-    private fun createConverter(
-        constructor: KFunction2<String, Int, JDomain>,
+    private fun <T2> createConverter(
+        constructor: KFunction2<String, Int, T2>,
         p1: KProperty1<Domain, String>,
         p2: KProperty1<Domain, Int>
-    ): (Domain) -> JDomain = {
+    ): (Domain) -> T2 = {
         constructor(p1(it), p2(it))
     }
 }
