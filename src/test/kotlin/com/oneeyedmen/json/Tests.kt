@@ -30,8 +30,8 @@ class Tests {
 
         val converter = object {
             fun toJson(value: Domain): JsonNode = objectMapper.createObjectNode().apply {
-                this.put("name", "fred")
-                this.put("count", 42)
+                this.put("name", value.name)
+                this.put("count", value.count)
             }
         }
         assertEquals(expected, converter.toJson(domain))
