@@ -1,9 +1,14 @@
 package com.oneeyedmen.json
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class Tests {
+
+    val objectMapper = ObjectMapper()
 
     @Test
     fun `converter can convert`() {
@@ -15,6 +20,24 @@ class Tests {
         assertEquals(JDomain("fred", 42), converter(domain))
     }
 
+    @Test
+    fun `to JsonNode`() {
+        val domain = Domain("fred", 42)
+        val expected: JsonNode = objectMapper.createObjectNode().apply {
+            this.put("name", "fred")
+            this.put("count", 42)
+        }
+
+        val converter = object {
+            fun toJson(value: Domain): JsonNode = objectMapper.createObjectNode().apply {
+                this.put("name", "fred")
+                this.put("count", 42)
+            }
+        }
+        assertEquals(expected, converter.toJson(domain))
+    }
+
+
     data class Domain(
         val name: String,
         val count: Int
@@ -25,6 +48,8 @@ class Tests {
         val count: Int
     )
 }
+
+
 
 fun <I, O, P1, P2> createConverter(
     constructor: (P1, P2) -> O,
