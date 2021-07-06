@@ -29,10 +29,10 @@ class Tests {
             this.put("count", 42)
         }
 
-        val putters = listOf<(ObjectNode, Domain) -> Unit>(
-            { node, value -> node.put("name", value.name) },
-            { node, value -> node.put("count", value.count) },
-        )
+        val putter1: (ObjectNode, Domain) -> Unit = { node, value -> node.put("name", value.name) }
+        val putter2: (ObjectNode, Domain) -> Unit = { node, value -> node.put("count", value.count) }
+
+        val putters = listOf(putter1, putter2)
         val converter = object {
             fun toJson(value: Domain): JsonNode = objectMapper.createObjectNode().apply {
                 putters.forEach {
