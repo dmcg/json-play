@@ -33,11 +33,14 @@ class Tests {
             node.put(name, extractor(value))
         }
 
+        fun jsonInt(name: String, extractor: (Domain) -> Int) = { node: ObjectNode, value: Domain ->
+            node.put(name, extractor(value))
+        }
 
-        val putter1 = jsonString("name", Domain::name)
-        val putter2: (ObjectNode, Domain) -> Unit = { node, value -> node.put("count", value.count) }
-
-        val putters = listOf(putter1, putter2)
+        val putters = listOf(
+            jsonString("name", Domain::name),
+            jsonInt("count", Domain::count),
+        )
         val converter = object {
             fun toJson(value: Domain): JsonNode = objectMapper.createObjectNode().apply {
                 putters.forEach {
