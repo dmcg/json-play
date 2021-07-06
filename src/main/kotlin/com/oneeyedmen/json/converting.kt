@@ -13,8 +13,14 @@ interface JsonConverter<D> {
 }
 
 interface JsonProperty<D, T> {
-    fun addTo(node: ObjectNode, value: D, factory: ObjectMapper)
-    fun extractFrom(node: JsonNode): T
+    val name: String
+    val converter: JsonConverter<T>
+    val extractor: (D) -> T
+
+    fun thing(value: D, factory: ObjectMapper) = converter.toJson(extractor(value), factory)
+
+
+    fun extractFrom(node: JsonNode) = converter.fromJson(node.get(name))
 }
 
 fun <D, P1, P2> converter(
@@ -24,8 +30,8 @@ fun <D, P1, P2> converter(
 ) = object: JsonConverter<D> {
     override fun toJson(value: D, factory: ObjectMapper): JsonNode =
         factory.createObjectNode().apply {
-            p1.addTo(this, value, factory)
-            p2.addTo(this, value, factory)
+            set<JsonNode>(p1.name, p1.thing(value, factory))
+            set<JsonNode>(p2.name, p2.thing(value, factory))
         }
 
     override fun fromJson(node: JsonNode): D =
@@ -55,12 +61,12 @@ fun <P, C> jsonObject(
     extractor: (P) -> C,
     converter: JsonConverter<C>
 ) = object: JsonProperty<P, C> {
-    override fun addTo(node: ObjectNode, value: P, factory: ObjectMapper) {
-        node.set<JsonNode>(name, converter.toJson(extractor(value), factory))
-    }
-
-    override fun extractFrom(node: JsonNode) =
-        converter.fromJson(node.get(name))
+    override val name: String
+        get() = name
+    override val converter: JsonConverter<C>
+        get() = converter
+    override val extractor: (P) -> C
+        get() = extractor
 }
 
 object JsonString : JsonConverter<String> {
