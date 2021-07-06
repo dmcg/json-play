@@ -18,11 +18,10 @@ class Tests {
             this.put("count", 42)
         }
 
-        val putters = listOf(
+        val converter = converter(
             jsonString("name", Domain::name),
             jsonInt("count", Domain::count),
         )
-        val converter = converter(putters)
         assertEquals(expected, converter(domain))
     }
 
@@ -33,6 +32,9 @@ class Tests {
             }
         }
     }
+
+    fun converter(vararg putters: (ObjectNode, Domain) -> Unit): (Domain) -> JsonNode =
+        converter(putters.asList())
 
     fun <D> jsonString(name: String, extractor: (D) -> String): (ObjectNode, D) -> Unit = { node, value ->
         node.put(name, extractor(value))
