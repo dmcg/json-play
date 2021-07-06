@@ -22,7 +22,7 @@ interface JsonProperty<P, C> {
     fun fromJson(node: JsonNode): C
 }
 
-fun <D, P1, P2> converter(
+fun <D, P1, P2> jsonMapping(
     ctor: (P1, P2) -> D,
     p1: JsonProperty<D, P1>,
     p2: JsonProperty<D, P2>

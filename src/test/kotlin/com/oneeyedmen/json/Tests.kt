@@ -17,7 +17,7 @@ class Tests {
             put("count", 42)
         }
 
-        val converter = converter(
+        val converter = jsonMapping(
             ::Domain,
             stringProp("the-name", Domain::name),
             intProp(Domain::count),
@@ -42,15 +42,18 @@ class Tests {
             )
         }
 
-        val innerConverter = converter(
-            ::Domain,
-            prop("the-name", Domain::name),
-            prop(Domain::count),
-        )
-        val converter = converter(
+        val converter = jsonMapping(
             ::Composite,
             prop(Composite::aString),
-            prop("child", Composite::thing, innerConverter),
+            prop(
+                "child",
+                Composite::thing,
+                jsonMapping(
+                    ::Domain,
+                    prop("the-name", Domain::name),
+                    prop(Domain::count),
+                )
+            ),
         )
 
         with (JsonContext(objectMapper)) {
