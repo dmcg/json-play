@@ -33,6 +33,8 @@ fun <D, P1, P2> ObjectMapper.converter(
         )
 }
 
+fun <D> jsonString(property: KProperty1<D, String>) = jsonString(property.name, property::get)
+
 fun <D> jsonString(name: String, extractor: (D) -> String) =
     object : JsonProperty<D, String> {
         override fun addTo(node: ObjectNode, value: D) {
