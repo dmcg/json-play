@@ -34,7 +34,7 @@ class Tests {
         )
         val expectedJson = objectMapper.createObjectNode().apply {
             put("aString", "banana")
-            set<JsonNode>("thing",
+            set<JsonNode>("child",
                 objectMapper.createObjectNode().apply {
                     put("the-name", "fred")
                     put("count", 42)
@@ -50,7 +50,7 @@ class Tests {
         val converter = converter(
             ::Composite,
             jsonString(Composite::aString),
-            jsonObject("thing", Composite::thing, innerConverter),
+            jsonObject("child", Composite::thing, innerConverter),
         )
         assertEquals(expectedJson, converter.toJson(domain, objectMapper))
         assertEquals(domain, converter.fromJson(expectedJson))
