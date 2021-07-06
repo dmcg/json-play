@@ -45,7 +45,7 @@ class Tests {
         operator fun invoke(node: JsonNode): D
     }
 
-    fun <D> converter(putters: List<JsonProperty<D>>) = object: Converter<D> {
+    fun <D> converter(putters: List<JsonProperty<D, *>>) = object: Converter<D> {
         override fun invoke(value: D): JsonNode =
             objectMapper.createObjectNode().apply {
                 putters.forEach {
@@ -58,24 +58,31 @@ class Tests {
         }
     }
 
-    fun <D> converter(vararg putters: JsonProperty<D>) = converter(putters.asList())
+    fun <D> converter(vararg putters: JsonProperty<D, *>) = converter(putters.asList())
 
-    interface JsonProperty<D> {
+    interface JsonProperty<D, T> {
         fun addTo(node: ObjectNode, value: D)
+        fun extractFrom(node: ObjectNode): T
     }
 
     fun <D> jsonString(name: String, extractor: (D) -> String) =
-        object : JsonProperty<D> {
+        object : JsonProperty<D, String> {
             override fun addTo(node: ObjectNode, value: D) {
                 node.put(name, extractor(value))
             }
+
+            override fun extractFrom(node: ObjectNode) =
+                node.get(name).asText()
         }
 
     fun <D> jsonInt(name: String, extractor: (D) -> Int) =
-        object: JsonProperty<D> {
+        object: JsonProperty<D, Int> {
             override fun addTo(node: ObjectNode, value: D) {
                 node.put(name, extractor(value))
             }
+
+            override fun extractFrom(node: ObjectNode) =
+                node.get(name).asInt()
         }
 
     data class Domain(
