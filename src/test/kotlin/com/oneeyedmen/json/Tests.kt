@@ -13,7 +13,8 @@ class Tests {
     @Test
     fun `converter can convert`() {
         val domain = Domain("fred", 42)
-        val converter: (Domain) -> JDomain = createConverter(::JDomain,
+        val converter: (Domain) -> JDomain = createConverter(
+            ::JDomain,
             Domain::name,
             Domain::count
         )
@@ -28,16 +29,15 @@ class Tests {
             this.put("count", 42)
         }
 
+        val putters = listOf<(ObjectNode, Domain) -> Unit>(
+            { node, value -> node.put("name", value.name) },
+            { node, value -> node.put("count", value.count) },
+        )
         val converter = object {
             fun toJson(value: Domain): JsonNode = objectMapper.createObjectNode().apply {
-                val putter1: (ObjectNode, Domain) -> Unit = { node, value ->
-                    node.put("name", value.name)
+                putters.forEach {
+                    it(this, value)
                 }
-                val putter2: (ObjectNode, Domain) -> Unit = { node, value ->
-                    node.put("count", value.count)
-                }
-                putter1(this, value)
-                putter2(this, value)
             }
         }
         assertEquals(expected, converter.toJson(domain))
@@ -54,7 +54,6 @@ class Tests {
         val count: Int
     )
 }
-
 
 
 fun <I, O, P1, P2> createConverter(
