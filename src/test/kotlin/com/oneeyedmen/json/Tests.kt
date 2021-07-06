@@ -71,15 +71,16 @@ class Tests {
             intProp(Domain::count),
         )
 
-        val expectedSchema = objectMapper.readTree("""
+        assertEquals("""
             {
                 "type" : "object",
                 "properties" : {
                     "the-name" : { "type" : "string" },
                     "count" : { "type" : "number" }
                 }
-            }""".trimIndent())
-        assertEquals(expectedSchema, converter.schema(objectMapper.asNodeFactory()))
+            }""".toJson(),
+            converter.schema(objectMapper.asNodeFactory())
+        )
     }
 
     @Test
@@ -98,7 +99,7 @@ class Tests {
             ),
         )
 
-        val expectedSchema = objectMapper.readTree("""
+        assertEquals("""
             {
                 "type" : "object",
                 "properties" : {
@@ -111,11 +112,14 @@ class Tests {
                         }
                     }
                 }
-            }""".trimIndent())
-        assertEquals(expectedSchema, converter.schema(objectMapper.asNodeFactory()))
+            }""".toJson(),
+            converter.schema(objectMapper.asNodeFactory())
+        )
     }
 
     fun objectNode() = objectMapper.createObjectNode()
+
+    fun String.toJson() = objectMapper.readTree(this.trimIndent())
 }
 
 data class Domain(
