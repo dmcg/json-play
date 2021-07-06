@@ -54,7 +54,10 @@ class Tests {
             }
 
         override fun invoke(node: JsonNode): D {
-            return Domain("fred", 42) as D
+            return Domain(
+                putters[0].extractFrom(node) as String,
+                putters[1].extractFrom(node) as Int
+            ) as D
         }
     }
 
@@ -62,7 +65,7 @@ class Tests {
 
     interface JsonProperty<D, T> {
         fun addTo(node: ObjectNode, value: D)
-        fun extractFrom(node: ObjectNode): T
+        fun extractFrom(node: JsonNode): T
     }
 
     fun <D> jsonString(name: String, extractor: (D) -> String) =
@@ -71,7 +74,7 @@ class Tests {
                 node.put(name, extractor(value))
             }
 
-            override fun extractFrom(node: ObjectNode) =
+            override fun extractFrom(node: JsonNode) =
                 node.get(name).asText()
         }
 
@@ -81,7 +84,7 @@ class Tests {
                 node.put(name, extractor(value))
             }
 
-            override fun extractFrom(node: ObjectNode) =
+            override fun extractFrom(node: JsonNode) =
                 node.get(name).asInt()
         }
 
