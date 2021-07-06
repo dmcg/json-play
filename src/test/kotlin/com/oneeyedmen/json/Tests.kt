@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KProperty0
+import kotlin.reflect.KProperty1
 import kotlin.test.assertEquals
 
 class Tests {
@@ -14,14 +16,14 @@ class Tests {
     fun `to JsonNode`() {
         val domain = Domain("fred", 42)
         val expected: JsonNode = objectMapper.createObjectNode().apply {
-            this.put("name", "fred")
+            this.put("the-name", "fred")
             this.put("count", 42)
         }
 
         val converter = converter(
             ::Domain,
-            jsonString("name", Domain::name),
-            jsonInt("count", Domain::count),
+            jsonString("the-name", Domain::name),
+            jsonInt(Domain::count),
         )
         assertEquals(expected, converter(domain))
     }
@@ -29,15 +31,15 @@ class Tests {
     @Test
     fun `from JsonNode`() {
         val node: JsonNode = objectMapper.createObjectNode().apply {
-            this.put("name", "fred")
+            this.put("the-name", "fred")
             this.put("count", 42)
         }
         val expected = Domain("fred", 42)
 
         val converter = converter(
             ::Domain,
-            jsonString("name", Domain::name),
-            jsonInt("count", Domain::count),
+            jsonString("the-name", Domain::name),
+            jsonInt(Domain::count),
         )
         assertEquals(expected, converter(node))
     }
@@ -79,6 +81,8 @@ class Tests {
             override fun extractFrom(node: JsonNode) =
                 node.get(name).asText()
         }
+
+    fun <D> jsonInt(property: KProperty1<D, Int>) = jsonInt(property.name, property::get)
 
     fun <D> jsonInt(name: String, extractor: (D) -> Int) =
         object: JsonProperty<D, Int> {
