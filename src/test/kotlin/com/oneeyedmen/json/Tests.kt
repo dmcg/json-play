@@ -1,5 +1,6 @@
 package com.oneeyedmen.json
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.junit.jupiter.api.Test
@@ -50,10 +51,23 @@ class Tests {
         val converter = objectMapper.converter(
             ::Composite,
             jsonString(Composite::aString),
-            jsonObject(converter1),
+            jsonObject("thing", Composite::thing, converter1),
         )
         assertEquals(expectedJson, converter(domain))
         assertEquals(domain, converter(expectedJson))
+    }
+
+    private fun jsonObject(
+        name: String,
+        extractor: (Composite) -> Domain,
+        converter: JsonConverter<Domain>
+    ) = object: JsonProperty<Composite, Domain> {
+        override fun addTo(node: ObjectNode, value: Composite) {
+        }
+
+        override fun extractFrom(node: JsonNode): Domain {
+            TODO("Not yet implemented")
+        }
     }
 }
 
