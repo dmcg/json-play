@@ -52,7 +52,11 @@ class Tests {
             prop(Composite::aString),
             prop("child", Composite::thing, innerConverter),
         )
-        assertEquals(expectedJson, converter.toJson(domain, objectMapper))
+
+        with (JsonContext(objectMapper)) {
+            assertEquals(expectedJson, converter.toJson(domain))
+        }
+
         assertEquals(domain, converter.fromJson(expectedJson))
     }
 }

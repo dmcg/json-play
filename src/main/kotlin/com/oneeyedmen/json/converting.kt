@@ -4,6 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlin.reflect.KProperty1
 
+class JsonContext(
+    val om: ObjectMapper
+) {
+    fun <D> JsonConverter<D>.toJson(value: D) =
+        toJson(value, om)
+}
+
 interface JsonConverter<D> {
     fun toJson(value: D, factory: ObjectMapper): JsonNode
     fun fromJson(node: JsonNode): D
