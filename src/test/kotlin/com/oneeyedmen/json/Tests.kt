@@ -22,8 +22,8 @@ class Tests {
             jsonString("the-name", Domain::name),
             jsonInt(Domain::count),
         )
-        assertEquals(expectedJson, converter(domain))
-        assertEquals(domain, converter(expectedJson))
+        assertEquals(expectedJson, converter.toJson(domain))
+        assertEquals(domain, converter.fromJson(expectedJson))
     }
 
     @Test
@@ -52,8 +52,8 @@ class Tests {
             jsonString(Composite::aString),
             jsonObject("thing", Composite::thing, innerConverter),
         )
-        assertEquals(expectedJson, converter(domain))
-        assertEquals(domain, converter(expectedJson))
+        assertEquals(expectedJson, converter.toJson(domain))
+        assertEquals(domain, converter.fromJson(expectedJson))
     }
 }
 

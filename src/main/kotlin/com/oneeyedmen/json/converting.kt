@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import kotlin.reflect.KProperty1
 
 interface JsonConverter<D> {
-    operator fun invoke(value: D): JsonNode
-    operator fun invoke(node: JsonNode): D
+    fun toJson(value: D): JsonNode
+    fun fromJson(node: JsonNode): D
 }
 
 interface JsonProperty<D, T> {
@@ -20,13 +20,13 @@ fun <D, P1, P2> ObjectMapper.converter(
     p1: JsonProperty<D, P1>,
     p2: JsonProperty<D, P2>
 ) = object: JsonConverter<D> {
-    override fun invoke(value: D): JsonNode =
+    override fun toJson(value: D): JsonNode =
         this@converter.createObjectNode().apply {
             p1.addTo(this, value)
             p2.addTo(this, value)
         }
 
-    override fun invoke(node: JsonNode): D =
+    override fun fromJson(node: JsonNode): D =
         ctor(
             p1.extractFrom(node),
             p2.extractFrom(node)
@@ -68,9 +68,9 @@ fun <P, C> jsonObject(
     converter: JsonConverter<C>
 ) = object: JsonProperty<P, C> {
     override fun addTo(node: ObjectNode, value: P) {
-        node.set<JsonNode>(name, converter(extractor(value)))
+        node.set<JsonNode>(name, converter.toJson(extractor(value)))
     }
 
     override fun extractFrom(node: JsonNode) =
-        converter(node.get(name) as ObjectNode)
+        converter.fromJson(node.get(name) as ObjectNode)
 }
