@@ -31,10 +31,11 @@ fun <D, P1, P2> jsonMapping(
     p2: JsonProperty<D, P2>
 ) = object: JsonConverter<D> {
 
+    private val properties = listOf(p1, p2)
+
     override fun toJson(value: D, factory: NodeFactory): JsonNode =
         factory(
-            p1.name to p1.toJson(value, factory),
-            p2.name to p2.toJson(value, factory)
+            properties.map { it.name to it.toJson(value, factory) }
         )
 
     override fun fromJson(node: JsonNode): D =
@@ -47,8 +48,7 @@ fun <D, P1, P2> jsonMapping(
         factory(
             "type" to TextNode.valueOf("object"),
             "properties" to factory(
-                p1.name to p1.schema(factory),
-                p2.name to p2.schema(factory)
+                properties.map { it.name to it.schema(factory) }
             )
         )
 }
