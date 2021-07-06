@@ -71,23 +71,47 @@ class Tests {
             intProp(Domain::count),
         )
 
-        val expectedSchema = objectNode().apply {
-            put("type", "object")
-            set<JsonNode>("properties",
-                objectNode().apply {
-                    set<JsonNode>("the-name",
-                        objectNode().apply {
-                            put("type", "string")
-                        }
-                    )
-                    set<JsonNode>("count",
-                        objectNode().apply {
-                            put("type", "number")
-                        }
-                    )
+        val expectedSchema = objectMapper.readTree("""
+            {
+                "type" : "object",
+                "properties" : {
+                    "the-name" : { "type" : "string" },
+                    "count" : { "type" : "number" }
                 }
-            )
-        }
+            }""".trimIndent())
+        assertEquals(expectedSchema, converter.schema(objectMapper.asNodeFactory()))
+    }
+
+    @Test
+    fun `nested schema`() {
+        val converter = jsonMapping(
+            ::Composite,
+            prop(Composite::aString),
+            prop(
+                "child",
+                Composite::thing,
+                jsonMapping(
+                    ::Domain,
+                    prop("the-name", Domain::name),
+                    prop(Domain::count),
+                )
+            ),
+        )
+
+        val expectedSchema = objectMapper.readTree("""
+            {
+                "type" : "object",
+                "properties" : {
+                    "aString" : { "type" : "string" },
+                    "child" : {
+                        "type" : "object",
+                        "properties" : {
+                            "the-name" : { "type" : "string" },
+                            "count" : { "type" : "number" }
+                        }
+                    }
+                }
+            }""".trimIndent())
         assertEquals(expectedSchema, converter.schema(objectMapper.asNodeFactory()))
     }
 
