@@ -2,7 +2,9 @@ package com.oneeyedmen.json
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.node.TextNode
 import kotlin.reflect.KProperty1
 
 interface JsonConverter<D> {
@@ -36,26 +38,12 @@ fun <D, P1, P2> converter(
 fun <D> jsonString(property: KProperty1<D, String>) = jsonString(property.name, property::get)
 
 fun <D> jsonString(name: String, extractor: (D) -> String) =
-    object : JsonProperty<D, String> {
-        override fun addTo(node: ObjectNode, value: D, factory: ObjectMapper) {
-            node.put(name, extractor(value))
-        }
-
-        override fun extractFrom(node: JsonNode) =
-            node.get(name).asText()
-    }
+    jsonObject(name, extractor, JsonString)
 
 fun <D> jsonInt(property: KProperty1<D, Int>) = jsonInt(property.name, property::get)
 
 fun <D> jsonInt(name: String, extractor: (D) -> Int) =
-    object: JsonProperty<D, Int> {
-        override fun addTo(node: ObjectNode, value: D, factory: ObjectMapper) {
-            node.put(name, extractor(value))
-        }
-
-        override fun extractFrom(node: JsonNode) =
-            node.get(name).asInt()
-    }
+    jsonObject(name, extractor, JsonInt)
 
 fun <P, C> jsonObject(
     property: KProperty1<P, C>,
@@ -72,5 +60,21 @@ fun <P, C> jsonObject(
     }
 
     override fun extractFrom(node: JsonNode) =
-        converter.fromJson(node.get(name) as ObjectNode)
+        converter.fromJson(node.get(name))
+}
+
+object JsonString : JsonConverter<String> {
+    override fun toJson(value: String, factory: ObjectMapper): JsonNode =
+        TextNode.valueOf(value)
+
+    override fun fromJson(node: JsonNode): String =
+        (node as TextNode).textValue()
+}
+
+object JsonInt : JsonConverter<Int> {
+    override fun toJson(value: Int, factory: ObjectMapper): JsonNode =
+        IntNode.valueOf(value)
+
+    override fun fromJson(node: JsonNode): Int =
+        (node as IntNode).intValue()
 }
