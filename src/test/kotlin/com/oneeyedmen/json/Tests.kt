@@ -29,7 +29,12 @@ class Tests {
             this.put("count", 42)
         }
 
-        val putter1: (ObjectNode, Domain) -> Unit = { node, value -> node.put("name", value.name) }
+        fun jsonString(name: String, extractor: (Domain) -> String) = { node: ObjectNode, value: Domain ->
+            node.put(name, extractor(value))
+        }
+
+
+        val putter1 = jsonString("name", Domain::name)
         val putter2: (ObjectNode, Domain) -> Unit = { node, value -> node.put("count", value.count) }
 
         val putters = listOf(putter1, putter2)
