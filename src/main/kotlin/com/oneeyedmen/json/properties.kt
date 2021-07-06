@@ -25,11 +25,15 @@ fun <P, C> prop(
     extractor: (P) -> C,
     converter: JsonConverter<C>
 ) = object: JsonProperty<P, C> {
-    override val name get() = name
+
     override fun toJson(value: P, factory: NodeFactory) =
-        converter.toJson(extractor(value), factory)
-    override fun fromJson(node: JsonNode) = converter.fromJson(node)
-    override fun schema(factory: NodeFactory) = converter.schema(factory)
+        name to converter.toJson(extractor(value), factory)
+
+    override fun fromJson(node: JsonNode) =
+        converter.fromJson(node[name])
+
+    override fun schema(factory: NodeFactory) =
+        name to converter.schema(factory)
 }
 
 @JvmName("propNameInt")
