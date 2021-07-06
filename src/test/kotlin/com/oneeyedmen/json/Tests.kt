@@ -19,6 +19,7 @@ class Tests {
         }
 
         val converter = converter(
+            ::Domain,
             jsonString("name", Domain::name),
             jsonInt("count", Domain::count),
         )
@@ -34,6 +35,7 @@ class Tests {
         val expected = Domain("fred", 42)
 
         val converter = converter(
+            ::Domain,
             jsonString("name", Domain::name),
             jsonInt("count", Domain::count),
         )
@@ -46,6 +48,7 @@ class Tests {
     }
 
     fun <D, P1, P2> converter(
+        ctor: (P1, P2) -> D,
         p1: JsonProperty<D, P1>,
         p2: JsonProperty<D, P2>
     ) = object: Converter<D> {
@@ -55,12 +58,11 @@ class Tests {
                 p2.addTo(this, value)
             }
 
-        override fun invoke(node: JsonNode): D {
-            return Domain(
-                p1.extractFrom(node) as String,
-                p2.extractFrom(node) as Int
-            ) as D
-        }
+        override fun invoke(node: JsonNode): D =
+            ctor(
+                p1.extractFrom(node),
+                p2.extractFrom(node)
+            )
     }
 
     interface JsonProperty<D, T> {
