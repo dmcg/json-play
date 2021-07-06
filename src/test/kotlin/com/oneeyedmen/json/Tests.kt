@@ -25,7 +25,7 @@ class Tests {
         assertEquals(expected, converter(domain))
     }
 
-    fun converter(putters: List<(ObjectNode, Domain) -> Unit>): (Domain) -> JsonNode = { value ->
+    fun <D> converter(putters: List<(ObjectNode, D) -> Unit>): (D) -> JsonNode = { value ->
         objectMapper.createObjectNode().apply {
             putters.forEach {
                 it(this, value)
@@ -33,8 +33,7 @@ class Tests {
         }
     }
 
-    fun converter(vararg putters: (ObjectNode, Domain) -> Unit): (Domain) -> JsonNode =
-        converter(putters.asList())
+    fun <D> converter(vararg putters: (ObjectNode, D) -> Unit) = converter(putters.asList())
 
     fun <D> jsonString(name: String, extractor: (D) -> String): (ObjectNode, D) -> Unit = { node, value ->
         node.put(name, extractor(value))
