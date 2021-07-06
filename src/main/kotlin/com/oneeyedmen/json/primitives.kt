@@ -11,6 +11,11 @@ object JsonString : JsonConverter<String> {
 
     override fun fromJson(node: JsonNode): String =
         (node as TextNode).textValue()
+
+    override fun schema(factory: NodeFactory): JsonNode =
+        factory(
+            "type" to TextNode.valueOf("string")
+        )
 }
 
 object JsonInt : JsonConverter<Int> {
@@ -19,4 +24,9 @@ object JsonInt : JsonConverter<Int> {
 
     override fun fromJson(node: JsonNode): Int =
         (node as IntNode).intValue()
+
+    override fun schema(factory: NodeFactory): JsonNode =
+        factory(
+            "type" to TextNode.valueOf("number")
+        )
 }
