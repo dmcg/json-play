@@ -40,11 +40,21 @@ class Tests {
         assertEquals(expected, converter(node))
     }
 
-    fun <D> converter(putters: List<(ObjectNode, D) -> Unit>): (D) -> JsonNode = { value ->
-        objectMapper.createObjectNode().apply {
-            putters.forEach {
-                it(this, value)
+    interface Converter<D> {
+        operator fun invoke(value: D): JsonNode
+        operator fun invoke(node: JsonNode): D
+    }
+
+    fun <D> converter(putters: List<(ObjectNode, D) -> Unit>) = object: Converter<D> {
+        override fun invoke(value: D): JsonNode =
+            objectMapper.createObjectNode().apply {
+                putters.forEach {
+                    it(this, value)
+                }
             }
+
+        override fun invoke(node: JsonNode): D {
+            TODO("Not yet implemented")
         }
     }
 
@@ -63,7 +73,6 @@ class Tests {
         val count: Int
     )
 }
-
 
 
 
