@@ -17,12 +17,12 @@ class Tests {
             put("count", 42)
         }
 
-        val converter = objectMapper.converter(
+        val converter = converter(
             ::Domain,
             jsonString("the-name", Domain::name),
             jsonInt(Domain::count),
         )
-        assertEquals(expectedJson, converter.toJson(domain))
+        assertEquals(expectedJson, converter.toJson(domain, objectMapper))
         assertEquals(domain, converter.fromJson(expectedJson))
     }
 
@@ -42,17 +42,17 @@ class Tests {
             )
         }
 
-        val innerConverter = objectMapper.converter(
+        val innerConverter = converter(
             ::Domain,
             jsonString("the-name", Domain::name),
             jsonInt(Domain::count),
         )
-        val converter = objectMapper.converter(
+        val converter = converter(
             ::Composite,
             jsonString(Composite::aString),
             jsonObject("thing", Composite::thing, innerConverter),
         )
-        assertEquals(expectedJson, converter.toJson(domain))
+        assertEquals(expectedJson, converter.toJson(domain, objectMapper))
         assertEquals(domain, converter.fromJson(expectedJson))
     }
 }
