@@ -22,15 +22,16 @@ class Tests {
             jsonString("name", Domain::name),
             jsonInt("count", Domain::count),
         )
-        val converter = object {
-            fun toJson(value: Domain): JsonNode = objectMapper.createObjectNode().apply {
+        val converter: (Domain) -> JsonNode = { value ->
+            objectMapper.createObjectNode().apply {
                 putters.forEach {
                     it(this, value)
                 }
             }
         }
-        assertEquals(expected, converter.toJson(domain))
+        assertEquals(expected, converter(domain))
     }
+
 
     fun <D> jsonString(name: String, extractor: (D) -> String) = { node: ObjectNode, value: D ->
         node.put(name, extractor(value))
