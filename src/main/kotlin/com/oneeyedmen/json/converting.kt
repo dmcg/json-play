@@ -56,3 +56,21 @@ fun <D> jsonInt(name: String, extractor: (D) -> Int) =
         override fun extractFrom(node: JsonNode) =
             node.get(name).asInt()
     }
+
+fun <P, C> jsonObject(
+    property: KProperty1<P, C>,
+    converter: JsonConverter<C>
+) = jsonObject(property.name, property::get, converter)
+
+fun <P, C> jsonObject(
+    name: String,
+    extractor: (P) -> C,
+    converter: JsonConverter<C>
+) = object: JsonProperty<P, C> {
+    override fun addTo(node: ObjectNode, value: P) {
+        node.set<JsonNode>(name, converter(extractor(value)))
+    }
+
+    override fun extractFrom(node: JsonNode) =
+        converter(node.get(name) as ObjectNode)
+}

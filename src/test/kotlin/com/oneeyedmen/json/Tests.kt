@@ -2,7 +2,6 @@ package com.oneeyedmen.json
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -35,7 +34,7 @@ class Tests {
         )
         val expectedJson = objectMapper.createObjectNode().apply {
             put("aString", "banana")
-            put("thing",
+            set<JsonNode>("thing",
                 objectMapper.createObjectNode().apply {
                     put("the-name", "fred")
                     put("count", 42)
@@ -43,7 +42,7 @@ class Tests {
             )
         }
 
-        val converter1 = objectMapper.converter(
+        val innerConverter = objectMapper.converter(
             ::Domain,
             jsonString("the-name", Domain::name),
             jsonInt(Domain::count),
@@ -51,23 +50,10 @@ class Tests {
         val converter = objectMapper.converter(
             ::Composite,
             jsonString(Composite::aString),
-            jsonObject("thing", Composite::thing, converter1),
+            jsonObject("thing", Composite::thing, innerConverter),
         )
         assertEquals(expectedJson, converter(domain))
         assertEquals(domain, converter(expectedJson))
-    }
-
-    private fun <P, C> jsonObject(
-        name: String,
-        extractor: (P) -> C,
-        converter: JsonConverter<C>
-    ) = object: JsonProperty<P, C> {
-        override fun addTo(node: ObjectNode, value: P) {
-            node.put(name, converter(extractor(value)))
-        }
-
-        override fun extractFrom(node: JsonNode) =
-            converter(node.get(name) as ObjectNode)
     }
 }
 
