@@ -19,8 +19,8 @@ class Tests {
 
         val converter = converter(
             ::Domain,
-            jsonString("the-name", Domain::name),
-            jsonInt(Domain::count),
+            stringProp("the-name", Domain::name),
+            intProp(Domain::count),
         )
         assertEquals(expectedJson, converter.toJson(domain, objectMapper))
         assertEquals(domain, converter.fromJson(expectedJson))
@@ -44,13 +44,13 @@ class Tests {
 
         val innerConverter = converter(
             ::Domain,
-            jsonString("the-name", Domain::name),
-            jsonInt(Domain::count),
+            prop("the-name", Domain::name),
+            prop(Domain::count),
         )
         val converter = converter(
             ::Composite,
-            jsonString(Composite::aString),
-            jsonObject("child", Composite::thing, innerConverter),
+            prop(Composite::aString),
+            prop("child", Composite::thing, innerConverter),
         )
         assertEquals(expectedJson, converter.toJson(domain, objectMapper))
         assertEquals(domain, converter.fromJson(expectedJson))
