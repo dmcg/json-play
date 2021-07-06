@@ -2,23 +2,23 @@ package com.oneeyedmen.json
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlin.reflect.KProperty1
 
 class JsonContext(
-    val om: ObjectMapper
+    val factory: NodeFactory
 ) {
-    fun <D> JsonConverter<D>.toJson(value: D) =
-        toJson(value, om)
+    fun <D> JsonConverter<D>.toJson(value: D) = toJson(value, factory)
+
+    companion object // to hang static extensions off of
 }
 
 interface JsonConverter<D> {
-    fun toJson(value: D, factory: ObjectMapper): JsonNode
+    fun toJson(value: D, factory: NodeFactory): JsonNode
     fun fromJson(node: JsonNode): D
 }
 
 interface JsonProperty<P, C> {
     val name: String
-    fun toJson(value: P, factory: ObjectMapper): JsonNode
+    fun toJson(value: P, factory: NodeFactory): JsonNode
     fun fromJson(node: JsonNode): C
 }
 
@@ -27,11 +27,11 @@ fun <D, P1, P2> jsonMapping(
     p1: JsonProperty<D, P1>,
     p2: JsonProperty<D, P2>
 ) = object: JsonConverter<D> {
-    override fun toJson(value: D, factory: ObjectMapper): JsonNode =
-        factory.createObjectNode().apply {
-            set<JsonNode>(p1.name, p1.toJson(value, factory))
-            set<JsonNode>(p2.name, p2.toJson(value, factory))
-        }
+    override fun toJson(value: D, factory: NodeFactory): JsonNode =
+        factory(listOf(
+            p1.name to p1.toJson(value, factory),
+            p2.name to p2.toJson(value, factory)
+        ))
 
     override fun fromJson(node: JsonNode): D =
         ctor(
@@ -40,3 +40,4 @@ fun <D, P1, P2> jsonMapping(
         )
 }
 
+typealias NodeFactory = (List<Pair<String, JsonNode>>) -> JsonNode

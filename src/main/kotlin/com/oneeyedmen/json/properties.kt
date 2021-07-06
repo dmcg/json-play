@@ -26,7 +26,7 @@ fun <P, C> prop(
     converter: JsonConverter<C>
 ) = object: JsonProperty<P, C> {
     override val name get() = name
-    override fun toJson(value: P, factory: ObjectMapper): JsonNode =
+    override fun toJson(value: P, factory: NodeFactory): JsonNode =
         converter.toJson(extractor(value), factory)
     override fun fromJson(node: JsonNode): C = converter.fromJson(node)
 }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.TextNode
 
 object JsonString : JsonConverter<String> {
-    override fun toJson(value: String, factory: ObjectMapper): JsonNode =
+    override fun toJson(value: String, factory: NodeFactory): JsonNode =
         TextNode.valueOf(value)
 
     override fun fromJson(node: JsonNode): String =
@@ -14,7 +14,7 @@ object JsonString : JsonConverter<String> {
 }
 
 object JsonInt : JsonConverter<Int> {
-    override fun toJson(value: Int, factory: ObjectMapper): JsonNode =
+    override fun toJson(value: Int, factory: NodeFactory): JsonNode =
         IntNode.valueOf(value)
 
     override fun fromJson(node: JsonNode): Int =

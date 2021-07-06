@@ -22,7 +22,7 @@ class Tests {
             stringProp("the-name", Domain::name),
             intProp(Domain::count),
         )
-        assertEquals(expectedJson, converter.toJson(domain, objectMapper))
+        assertEquals(expectedJson, converter.toJson(domain, objectMapper.asNodeFactory()))
         assertEquals(domain, converter.fromJson(expectedJson))
     }
 
