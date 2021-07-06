@@ -54,7 +54,7 @@ class Tests {
             }
 
         override fun invoke(node: JsonNode): D {
-            TODO("Not yet implemented")
+            return Domain("fred", 42) as D
         }
     }
 
