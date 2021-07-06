@@ -29,11 +29,11 @@ class Tests {
             this.put("count", 42)
         }
 
-        fun jsonString(name: String, extractor: (Domain) -> String) = { node: ObjectNode, value: Domain ->
+        fun <D> jsonString(name: String, extractor: (D) -> String) = { node: ObjectNode, value: D ->
             node.put(name, extractor(value))
         }
 
-        fun jsonInt(name: String, extractor: (Domain) -> Int) = { node: ObjectNode, value: Domain ->
+        fun <D> jsonInt(name: String, extractor: (D) -> Int) = { node: ObjectNode, value: D ->
             node.put(name, extractor(value))
         }
 
