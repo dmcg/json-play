@@ -3,7 +3,6 @@ package com.oneeyedmen.json
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.IntNode
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import kotlin.reflect.KProperty1
 
@@ -12,15 +11,10 @@ interface JsonConverter<D> {
     fun fromJson(node: JsonNode): D
 }
 
-interface JsonProperty<D, T> {
+interface JsonProperty<P, C> {
     val name: String
-    val converter: JsonConverter<T>
-    val extractor: (D) -> T
-
-    fun thing(value: D, factory: ObjectMapper) = converter.toJson(extractor(value), factory)
-
-
-    fun extractFrom(node: JsonNode) = converter.fromJson(node.get(name))
+    fun toJson(value: P, factory: ObjectMapper): JsonNode
+    fun fromJson(node: JsonNode): C
 }
 
 fun <D, P1, P2> converter(
@@ -30,14 +24,14 @@ fun <D, P1, P2> converter(
 ) = object: JsonConverter<D> {
     override fun toJson(value: D, factory: ObjectMapper): JsonNode =
         factory.createObjectNode().apply {
-            set<JsonNode>(p1.name, p1.thing(value, factory))
-            set<JsonNode>(p2.name, p2.thing(value, factory))
+            set<JsonNode>(p1.name, p1.toJson(value, factory))
+            set<JsonNode>(p2.name, p2.toJson(value, factory))
         }
 
     override fun fromJson(node: JsonNode): D =
         ctor(
-            p1.extractFrom(node),
-            p2.extractFrom(node)
+            p1.fromJson(node.get(p1.name)),
+            p2.fromJson(node.get(p2.name)),
         )
 }
 
@@ -61,12 +55,10 @@ fun <P, C> jsonObject(
     extractor: (P) -> C,
     converter: JsonConverter<C>
 ) = object: JsonProperty<P, C> {
-    override val name: String
-        get() = name
-    override val converter: JsonConverter<C>
-        get() = converter
-    override val extractor: (P) -> C
-        get() = extractor
+    override val name get() = name
+    override fun toJson(value: P, factory: ObjectMapper): JsonNode =
+        converter.toJson(extractor(value), factory)
+    override fun fromJson(node: JsonNode): C = converter.fromJson(node)
 }
 
 object JsonString : JsonConverter<String> {
