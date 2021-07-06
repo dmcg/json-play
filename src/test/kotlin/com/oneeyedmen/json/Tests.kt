@@ -29,9 +29,15 @@ class Tests {
         }
 
         val converter = object {
+            val putters = listOf(
+                "name" to Domain::name,
+                "count" to Domain::count
+            )
+
             fun toJson(value: Domain): JsonNode = objectMapper.createObjectNode().apply {
-                this.put("name", value.name)
-                this.put("count", value.count)
+                putters.forEach { (name, extractor) ->
+                    this.put(name, extractor(value))
+                }
             }
         }
         assertEquals(expected, converter.toJson(domain))
