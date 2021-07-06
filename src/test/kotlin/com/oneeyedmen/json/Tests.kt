@@ -57,17 +57,17 @@ class Tests {
         assertEquals(domain, converter(expectedJson))
     }
 
-    private fun jsonObject(
+    private fun <P, C> jsonObject(
         name: String,
-        extractor: (Composite) -> Domain,
-        converter: JsonConverter<Domain>
-    ) = object: JsonProperty<Composite, Domain> {
-        override fun addTo(node: ObjectNode, value: Composite) {
+        extractor: (P) -> C,
+        converter: JsonConverter<C>
+    ) = object: JsonProperty<P, C> {
+        override fun addTo(node: ObjectNode, value: P) {
+            node.put(name, converter(extractor(value)))
         }
 
-        override fun extractFrom(node: JsonNode): Domain {
-            TODO("Not yet implemented")
-        }
+        override fun extractFrom(node: JsonNode) =
+            converter(node.get(name) as ObjectNode)
     }
 }
 
