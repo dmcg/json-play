@@ -25,6 +25,21 @@ class Tests {
         assertEquals(expected, converter(domain))
     }
 
+    @Test
+    fun `from JsonNode`() {
+        val node: JsonNode = objectMapper.createObjectNode().apply {
+            this.put("name", "fred")
+            this.put("count", 42)
+        }
+        val expected = Domain("fred", 42)
+
+        val converter = converter(
+            jsonString("name", Domain::name),
+            jsonInt("count", Domain::count),
+        )
+        assertEquals(expected, converter(node))
+    }
+
     fun <D> converter(putters: List<(ObjectNode, D) -> Unit>): (D) -> JsonNode = { value ->
         objectMapper.createObjectNode().apply {
             putters.forEach {
