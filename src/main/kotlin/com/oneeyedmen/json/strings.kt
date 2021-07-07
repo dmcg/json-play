@@ -18,7 +18,7 @@ inline fun <D, reified C: Collection<String>> prop(
 ) = prop(name, extractor, JsonString)
 
 @JvmName("propStringCollection")
-inline fun <D, E, reified C: Collection<String>> prop(
+inline fun <D, reified C: Collection<String>> prop(
     property: KProperty1<D, C>,
 ) = prop(property.name, property)
 

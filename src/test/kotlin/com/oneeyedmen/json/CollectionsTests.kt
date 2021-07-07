@@ -8,7 +8,7 @@ class CollectionsTests {
 
     private val objectMapper = ObjectMapper()
 
-    val expectedJson = """
+    private val expectedJson = """
         {
             "things" : [ "banana", "kumquat" ]
         }""".toJson(objectMapper)
@@ -22,7 +22,7 @@ class CollectionsTests {
         val domain = ListOfStrings(listOf("banana", "kumquat"))
         val mapping = jsonMapping(
             ::ListOfStrings,
-            prop("things", ListOfStrings::things),
+            prop(ListOfStrings::things),
         )
         assertEquals(
             expectedJson,
@@ -49,22 +49,29 @@ class CollectionsTests {
         assertEquals(domain, mapping.fromJson(expectedJson))
     }
 
+    data class Thing(
+        val field: String
+    )
+    data class Domain(
+        val strings: List<String>,
+        val things: List<Thing>,
+    )
+
     @Test
     fun `list of objects`() {
-        data class Thing(
-            val field: String
+        val domain = Domain(
+            emptyList(),
+            listOf(Thing("banana"), Thing("kumquat"))
         )
-        data class Domain(
-            val things: List<Thing>
-        )
-        val domain = Domain(listOf(Thing("banana"), Thing("kumquat")))
         val mapping = jsonMapping(
             ::Domain,
+            prop(Domain::strings),
             prop(Domain::things, jsonMapping(::Thing, prop(Thing::field))),
         )
 
         val expectedJson = """
         {
+            "strings" : [],
             "things" : [
                 { "field" : "banana" },
                 { "field" : "kumquat" }
@@ -79,6 +86,35 @@ class CollectionsTests {
 
     @Test
     fun schema() {
+        val mapping = jsonMapping(
+            ::Domain,
+            prop(Domain::strings),
+            prop(Domain::things, jsonMapping(::Thing, prop(Thing::field))),
+        )
 
+        val expectedJson = """{
+            "type" : "object",
+            "properties" : {
+                "strings" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string"
+                    }
+                },
+                "things" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "object",
+                        "properties" : {
+                            "field" : { "type" : "string" }
+                        }
+                    }
+                }
+            }
+        }""".trimMargin().toJson(objectMapper)
+        assertEquals(
+            expectedJson,
+            mapping.schema(objectMapper.asNodeFactory())
+        )
     }
 }
