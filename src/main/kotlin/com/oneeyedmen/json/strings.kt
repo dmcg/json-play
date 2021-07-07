@@ -7,34 +7,40 @@ import kotlin.reflect.KProperty1
 
 
 @JvmName("propNameString")
-fun <D> prop(name: String, extractor: (D) -> String) = stringProp(name, extractor)
+inline fun <D, reified S: String?> prop(
+    name: String,
+    noinline extractor: (D) -> S
+): JsonProperty<D, S> = stringProp(name, extractor)
 
 @JvmName("propString")
-fun <D> prop(property: KProperty1<D, String>) = stringProp(property.name, property)
-fun <D> prop(property: KProperty1<D, String?>) = stringProp(property.name, property)
+inline fun <D, reified S: String?> prop(
+    property: KProperty1<D, S>
+): JsonProperty<D, S> = stringProp(property.name, property)
 
 @JvmName("propStringCollectionString")
 inline fun <D, reified C: Collection<String>> prop(
     name: String,
     noinline extractor: (D) -> C,
-) = prop(name, extractor, JsonString)
+): JsonProperty<D, C> = prop(name, extractor, JsonString)
 
 @JvmName("propStringCollection")
 inline fun <D, reified C: Collection<String>> prop(
     property: KProperty1<D, C>,
-) = prop(property.name, property)
+): JsonProperty<D, C> = prop(property.name, property)
 
-fun <D> stringProp(name: String, extractor: (D) -> String) =
-    prop(name, extractor, JsonString)
+inline fun <D, reified S: String?> stringProp(
+    name: String,
+    noinline extractor: (D) -> S
+): JsonProperty<D, S> =
+    prop(
+        name,
+        extractor,
+        JsonString,
+        null is S
+    ) as JsonProperty<D, S>
 
-@JvmName("propNullableString")
-fun <D> stringProp(name: String, extractor: (D) -> String?) =
-    prop(name, extractor, NullableJsonString)
 
-
-val JsonString = NullableJsonString.nonNull()
-
-object NullableJsonString : JsonConverter<String?> {
+object JsonString : JsonConverter<String?> {
 
     override fun toJson(value: String?, factory: NodeFactory): JsonNode =
         if (value == null) NullNode.instance else
@@ -51,5 +57,3 @@ object NullableJsonString : JsonConverter<String?> {
             "type" to TextNode.valueOf("string")
         )
 }
-
-fun <D> JsonConverter<D?>.nonNull(): JsonConverter<D> = this as JsonConverter<D>

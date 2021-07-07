@@ -52,7 +52,7 @@ class Tests {
             prop(Domain::count),
         )
 
-        assertThrows<NullPointerException> {
+        assertThrows<IllegalStateException> {
             val json = """
                 {
                     "the-name" : null,
@@ -60,7 +60,8 @@ class Tests {
                 }""".toJson(objectMapper)
             mapping.fromJson(json)
         }
-        assertThrows<NullPointerException> {
+        assertThrows<IllegalStateException> {
+            // just checking that we are in charge at the moment
             val json = """
                 {
                     "count" : 42
@@ -123,4 +124,3 @@ class Tests {
 
 fun String.toJson(objectMapper: ObjectMapper): JsonNode =
     objectMapper.readTree(this.trimIndent())
-
