@@ -3,6 +3,8 @@ package com.oneeyedmen.json
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.lang.ClassCastException
 import kotlin.test.assertEquals
 
 class Tests {
@@ -43,6 +45,49 @@ class Tests {
     }
 
     @Test
+    fun `no property throws NullPointerException`() {
+        val mapping = jsonMapping(
+            ::Domain,
+            prop("the-name", Domain::name),
+            prop(Domain::count),
+        )
+
+        assertThrows<NullPointerException> {
+            val json = """
+                {
+                    "the-name" : null,
+                    "count" : 42
+                }""".toJson(objectMapper)
+            mapping.fromJson(json)
+        }
+        assertThrows<NullPointerException> {
+            val json = """
+                {
+                    "count" : 42
+                }""".toJson(objectMapper)
+            mapping.fromJson(json)
+        }
+    }
+
+    @Test
+    fun `wrong property throws ClassCastException`() {
+        val mapping = jsonMapping(
+            ::Domain,
+            prop("the-name", Domain::name),
+            prop(Domain::count),
+        )
+
+        val json = """
+        {
+            "the-name" : "banana",
+            "count" : "kumquat"
+        }""".toJson(objectMapper)
+        assertThrows<ClassCastException> {
+            mapping.fromJson(json)
+        }
+    }
+
+    @Test
     fun `nested round trip`() {
         val domain = Parent(
             "banana",
@@ -73,7 +118,6 @@ class Tests {
             assertEquals(expectedJson, mapping.toJson(domain))
             assertEquals(domain, mapping.fromJson(expectedJson))
         }
-
     }
 }
 

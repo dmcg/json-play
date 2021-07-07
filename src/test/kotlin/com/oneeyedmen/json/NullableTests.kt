@@ -16,7 +16,6 @@ class NullableTests {
         prop(Domain::name)
     )
 
-
     @Test
     fun `null round trip`() {
         val expectedJson = """

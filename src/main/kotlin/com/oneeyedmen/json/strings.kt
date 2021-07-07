@@ -32,19 +32,7 @@ fun <D> stringProp(name: String, extractor: (D) -> String?) =
     prop(name, extractor, NullableJsonString)
 
 
-object JsonString : JsonConverter<String> {
-
-    override fun toJson(value: String, factory: NodeFactory): JsonNode =
-        TextNode.valueOf(value)
-
-    override fun fromJson(node: JsonNode): String =
-        (node as TextNode).textValue()
-
-    override fun schema(factory: NodeFactory): JsonNode =
-        factory.objectNode(
-            "type" to TextNode.valueOf("string")
-        )
-}
+val JsonString = NullableJsonString.nonNull()
 
 object NullableJsonString : JsonConverter<String?> {
 
@@ -63,3 +51,5 @@ object NullableJsonString : JsonConverter<String?> {
             "type" to TextNode.valueOf("string")
         )
 }
+
+fun <D> JsonConverter<D?>.nonNull(): JsonConverter<D> = this as JsonConverter<D>
