@@ -14,16 +14,16 @@ class JsonConverterBase<D>(
     ) : this(ctor, properties.asList())
 
     override fun toJson(value: D, factory: NodeFactory): JsonNode =
-        factory(
+        factory.objectNode(
             properties.map { it.toJson(value, factory) }
         )
 
     override fun fromJson(node: JsonNode): D = ctor(node)
 
     override fun schema(factory: NodeFactory) =
-        factory(
+        factory.objectNode(
             "type" to TextNode.valueOf("object"),
-            "properties" to factory(
+            "properties" to factory.objectNode(
                 properties.map { it.schema(factory) }
             )
         )

@@ -3,16 +3,14 @@ package com.oneeyedmen.json
 import com.fasterxml.jackson.databind.JsonNode
 import kotlin.reflect.KProperty1
 
-
-fun <D> stringProp(property: KProperty1<D, String>) = stringProp(property.name, property::get)
+fun <D> intProp(name: String, extractor: (D) -> Int) =
+    prop(name, extractor, JsonInt)
 
 fun <D> stringProp(name: String, extractor: (D) -> String) =
     prop(name, extractor, JsonString)
 
-fun <D> intProp(property: KProperty1<D, Int>) = intProp(property.name, property::get)
-
-fun <D> intProp(name: String, extractor: (D) -> Int) =
-    prop(name, extractor, JsonInt)
+inline fun <D, reified E: Enum<E>> enumProp(name: String, noinline extractor: (D) -> E) =
+    prop(name, extractor, JsonEnum(E::class))
 
 fun <P, C> prop(
     property: KProperty1<P, C>,
@@ -39,11 +37,17 @@ fun <P, C> prop(
 fun <D> prop(name: String, extractor: (D) -> Int) = intProp(name, extractor)
 
 @JvmName("propInt")
-fun <D> prop(property: KProperty1<D, Int>) = intProp(property)
+fun <D> prop(property: KProperty1<D, Int>) = intProp(property.name, property)
 
 @JvmName("propNameString")
 fun <D> prop(name: String, extractor: (D) -> String) = stringProp(name, extractor)
 
 @JvmName("propString")
-fun <D> prop(property: KProperty1<D, String>) = stringProp(property)
+fun <D> prop(property: KProperty1<D, String>) = stringProp(property.name, property)
+
+@JvmName("propEnumString")
+inline fun <D, reified E: Enum<E>> prop(name: String, noinline extractor: (D) -> E) = enumProp(name, extractor)
+
+@JvmName("propEnum")
+inline fun <D, reified E: Enum<E>> prop(property: KProperty1<D, E>) = enumProp(property.name, property)
 

@@ -22,8 +22,8 @@ class SchemaTests {
     fun `simple schema`() {
         val mapping = jsonMapping(
             ::Domain,
-            stringProp("the-name", Domain::name),
-            intProp(Domain::count),
+            prop("the-name", Domain::name),
+            prop(Domain::count),
         )
 
         assertEquals("""

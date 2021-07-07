@@ -22,7 +22,9 @@ interface JsonProperty<P, C> {
     fun schema(factory: NodeFactory): Pair<String, JsonNode>
 }
 
-typealias NodeFactory = (List<Pair<String, JsonNode>>) -> JsonNode
-
-operator fun NodeFactory.invoke(vararg nodes: Pair<String, JsonNode>) =
-    this(nodes.asList())
+interface NodeFactory {
+    fun objectNode(children: Iterable<Pair<String, JsonNode>>): JsonNode
+    fun objectNode(vararg children: Pair<String, JsonNode>) = objectNode(children.asList())
+    fun arrayNode(children: Iterable<JsonNode>): JsonNode
+    fun arrayNode(vararg children: JsonNode) = arrayNode(children.asList())
+}
