@@ -8,21 +8,38 @@ class CollectionsTests {
 
     private val objectMapper = ObjectMapper()
 
-    private data class Domain(
+    private data class ListOfStrings(
         val things: List<String>
     )
-    private val mapping = jsonMapping(
-        ::Domain,
-        collectionProp("things", Domain::things),
+    private data class SetOfStrings(
+        val things: Set<String>
     )
-
-    @Test
-    fun `round trip`() {
-        val domain = Domain(listOf("banana", "kumquat"))
-        val expectedJson = """
+    val expectedJson = """
         {
             "things" : [ "banana", "kumquat" ]
         }""".toJson(objectMapper)
+
+    @Test
+    fun `list of strings`() {
+        val domain = ListOfStrings(listOf("banana", "kumquat"))
+        val mapping = jsonMapping(
+            ::ListOfStrings,
+            collectionProp("things", ListOfStrings::things),
+        )
+        assertEquals(
+            expectedJson,
+            mapping.toJson(domain, objectMapper.asNodeFactory())
+        )
+        assertEquals(domain, mapping.fromJson(expectedJson))
+    }
+
+    @Test
+    fun `set of strings`() {
+        val domain = SetOfStrings(setOf("banana", "kumquat"))
+        val mapping = jsonMapping(
+            ::SetOfStrings,
+            collectionProp("things", SetOfStrings::things),
+        )
         assertEquals(
             expectedJson,
             mapping.toJson(domain, objectMapper.asNodeFactory())

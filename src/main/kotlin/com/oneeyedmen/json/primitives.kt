@@ -74,10 +74,15 @@ class JsonCollection<C: Collection<String>>(
         )
 
     override fun fromJson(node: JsonNode): C =
-        (node as ArrayNode).map { it.textValue() } as C
+        (node as ArrayNode).mapTo(mutableCollection()) { it.textValue() } as C
+
+    private fun mutableCollection(): MutableCollection<String> = when {
+        collectionClass == List::class -> mutableListOf<String>()
+        collectionClass == Set::class -> mutableSetOf<String>()
+        else -> TODO()
+    }
 
     override fun schema(factory: NodeFactory): JsonNode {
         TODO("Not yet implemented")
     }
-
 }
