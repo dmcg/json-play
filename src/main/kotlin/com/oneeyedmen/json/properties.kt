@@ -1,6 +1,7 @@
 package com.oneeyedmen.json
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
 fun <D> intProp(name: String, extractor: (D) -> Int) =
@@ -11,6 +12,11 @@ fun <D> stringProp(name: String, extractor: (D) -> String) =
 
 inline fun <D, reified E: Enum<E>> enumProp(name: String, noinline extractor: (D) -> E) =
     prop(name, extractor, JsonEnum(E::class))
+
+inline fun <D, reified C: Collection<String>> collectionProp(
+    name: String,
+    noinline extractor: (D) -> C
+) = prop(name, extractor, JsonCollection(C::class))
 
 fun <P, C> prop(
     property: KProperty1<P, C>,

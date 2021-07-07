@@ -61,3 +61,23 @@ class JsonEnum<E: Enum<E>>(
             )
         )
 }
+
+class JsonCollection<C: Collection<String>>(
+    private val collectionClass: KClass<C>
+) : JsonConverter<C> {
+
+    override fun toJson(value: C, factory: NodeFactory): JsonNode =
+        factory.arrayNode(
+            value.map {
+                TextNode.valueOf(it.toString())
+            }
+        )
+
+    override fun fromJson(node: JsonNode): C =
+        (node as ArrayNode).map { it.textValue() } as C
+
+    override fun schema(factory: NodeFactory): JsonNode {
+        TODO("Not yet implemented")
+    }
+
+}
