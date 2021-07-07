@@ -8,12 +8,6 @@ class CollectionsTests {
 
     private val objectMapper = ObjectMapper()
 
-    private data class ListOfStrings(
-        val things: List<String>
-    )
-    private data class SetOfStrings(
-        val things: Set<String>
-    )
     val expectedJson = """
         {
             "things" : [ "banana", "kumquat" ]
@@ -21,10 +15,14 @@ class CollectionsTests {
 
     @Test
     fun `list of strings`() {
+        data class ListOfStrings(
+            val things: List<String>
+        )
+
         val domain = ListOfStrings(listOf("banana", "kumquat"))
         val mapping = jsonMapping(
             ::ListOfStrings,
-            collectionProp("things", ListOfStrings::things),
+            prop("things", ListOfStrings::things),
         )
         assertEquals(
             expectedJson,
@@ -35,15 +33,52 @@ class CollectionsTests {
 
     @Test
     fun `set of strings`() {
+        data class SetOfStrings(
+            val things: Set<String>
+        )
+
         val domain = SetOfStrings(setOf("banana", "kumquat"))
         val mapping = jsonMapping(
             ::SetOfStrings,
-            collectionProp("things", SetOfStrings::things),
+            prop("things", SetOfStrings::things),
         )
         assertEquals(
             expectedJson,
             mapping.toJson(domain, objectMapper.asNodeFactory())
         )
         assertEquals(domain, mapping.fromJson(expectedJson))
+    }
+
+    @Test
+    fun `list of objects`() {
+        data class Thing(
+            val field: String
+        )
+        data class Domain(
+            val things: List<Thing>
+        )
+        val domain = Domain(listOf(Thing("banana"), Thing("kumquat")))
+        val mapping = jsonMapping(
+            ::Domain,
+            prop(Domain::things, jsonMapping(::Thing, prop(Thing::field))),
+        )
+
+        val expectedJson = """
+        {
+            "things" : [
+                { "field" : "banana" },
+                { "field" : "kumquat" }
+            ]
+        }""".toJson(objectMapper)
+        assertEquals(
+            expectedJson,
+            mapping.toJson(domain, objectMapper.asNodeFactory())
+        )
+        assertEquals(domain, mapping.fromJson(expectedJson))
+    }
+
+    @Test
+    fun schema() {
+
     }
 }
