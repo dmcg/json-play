@@ -24,17 +24,17 @@ class Tests {
     @Test
     fun `simple round trip`() {
         val domain = Domain("fred", 42)
+        val converter = jsonMapping(
+            ::Domain,
+            prop("the-name", Domain::name),
+            prop(Domain::count),
+        )
+
         val expectedJson = """
         {
             "the-name" : "fred",
             "count" : 42
         }""".toJson(objectMapper)
-
-        val converter = jsonMapping(
-            ::Domain,
-            stringProp("the-name", Domain::name),
-            intProp(Domain::count),
-        )
         assertEquals(
             expectedJson,
             converter.toJson(domain, objectMapper.asNodeFactory())
@@ -48,14 +48,6 @@ class Tests {
             "banana",
             Domain("fred", 42)
         )
-        val expectedJson = """{
-            "aString" : "banana",
-            "child" : {
-                "the-name" : "fred",
-                "count" : 42
-            }
-        }""".toJson(objectMapper)
-
         val converter = jsonMapping(
             ::Parent,
             prop(Parent::aString),
@@ -71,10 +63,17 @@ class Tests {
         )
 
         with(JsonContext(objectMapper)) {
+            val expectedJson = """{
+                "aString" : "banana",
+                "child" : {
+                    "the-name" : "fred",
+                    "count" : 42
+                }
+            }""".toJson(objectMapper)
             assertEquals(expectedJson, converter.toJson(domain))
+            assertEquals(domain, converter.fromJson(expectedJson))
         }
 
-        assertEquals(domain, converter.fromJson(expectedJson))
     }
 }
 
